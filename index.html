@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>NK MAHAL</title>
+<meta name="description" content="NK Mahal – an air-conditioned premium marriage hall in Anna Nagar, Chennai. Seating for 1000 guests, dining hall, parking, in-house temple and more.">
+<meta name="theme-color" content="#070c22">
+<link rel="icon" type="image/jpeg" href="logonkmahal.jpeg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    /* ============ THEME TOKENS ============ */
+    :root {
+        --navy-deep: #060a1e;
+        --navy-panel: #0d1536;
+        --navy-panel-2: #121c46;
+        --gold: #e8bd3d;
+        --gold-bright: #f8dd8a;
+        --gold-deep: #a9821f;
+        --cream: #efe6c2;
+        --white: #f6f4ec;
+        --wa: #25d366;
+        --radius: 18px;
+        --maxw: 1180px;
+        --header-h: 80px;
+        --menu-size: 48px;
+        --slide-w: 300px;
+        --slide-h: 350px;
+        --slider-h: 400px;
+        --font-display: 'Cinzel', 'Cormorant Garamond', serif;
+        --font-serif: 'Cormorant Garamond', serif;
+        --font-body: 'Jost', sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: calc(var(--header-h) + 12px);
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        margin: 0;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+        background: radial-gradient(ellipse at 50% -10%, #14214f 0%, var(--navy-deep) 58%), var(--navy-deep);
+        color: var(--white);
+        font-family: var(--font-body);
+        font-weight: 400;
+        line-height: 1.7;
+        position: relative;
+    }
+    body.loading { overflow: hidden; }
+
+    img { max-width: 100%; display: block; border-style: none; }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    ::selection { background: var(--gold); color: var(--navy-deep); }
+    :focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 3px; }
+
+    h1, h2, h3, .brand {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: .05em;
+        margin: 0;
+    }
+
+    /* ============ PRELOADER ============ */
+    #loader {
+        position: fixed; inset: 0; z-index: 1000;
+        background: var(--navy-deep);
+        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+        transition: opacity .7s ease, visibility .7s ease;
+    }
+    #loader.done { opacity: 0; visibility: hidden; }
+    .loader-ring {
+        width: 84px; height: 84px; border-radius: 50%;
+        border: 3px solid rgba(232,189,61,.18);
+        border-top-color: var(--gold);
+        border-right-color: var(--gold-bright);
+        animation: spin 1s linear infinite;
+        box-shadow: 0 0 40px rgba(232,189,61,.25);
+    }
+    .loader-text {
+        font-family: var(--font-display);
+        font-size: clamp(1.4rem, 6vw, 2rem);
+        font-weight: 800; letter-spacing: .3em; color: var(--gold);
+        padding-left: .3em;
+        animation: pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 50% { opacity: .45; } }
+
+    /* ============ SCROLL PROGRESS ============ */
+    #progress {
+        position: fixed; top: 0; left: 0; height: 3px; width: 0;
+        background: linear-gradient(90deg, var(--gold-deep), var(--gold-bright), var(--gold));
+        z-index: 300; box-shadow: 0 0 12px rgba(232,189,61,.7);
+    }
+
+    /* ============ HEADER ============ */
+    header {
+        position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+        height: var(--header-h);
+        display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        padding: 0 clamp(12px, 3vw, 28px);
+        padding-top: env(safe-area-inset-top, 0px);
+        background: linear-gradient(180deg, rgba(6,10,30,.96), rgba(6,10,30,.7));
+        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+        border-bottom: 1px solid rgba(232,189,61,.18);
+        transition: box-shadow .3s ease, background .3s ease;
+    }
+    header { pointer-events: none; }
+    header::before { content: ""; flex: 0 0 var(--menu-size); }
+    header .menu-btn { pointer-events: auto; }
+    header .brand { pointer-events: auto; transition: opacity .4s ease, transform .4s ease, visibility .4s ease; }
+    header.scrolled {
+        background: transparent; border-bottom-color: transparent; box-shadow: none;
+        -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+    header.scrolled .brand {
+        opacity: 0; visibility: hidden; transform: translateY(-16px); pointer-events: none;
+    }
+
+
+    .brand {
+        flex: 1 1 auto; min-width: 0; text-align: center;
+        font-size: clamp(1.35rem, 5.6vw, 2.9rem);
+        line-height: 1; white-space: nowrap;
+        background: linear-gradient(100deg, var(--gold-deep) 0%, var(--gold-bright) 30%, var(--gold) 50%, var(--gold-bright) 70%, var(--gold-deep) 100%);
+        background-size: 250% auto;
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+        animation: shine 6s linear infinite;
+    }
+    @keyframes shine { to { background-position: 250% center; } }
+
+    .menu-btn {
+        flex: 0 0 auto;
+        width: var(--menu-size); height: var(--menu-size);
+        border-radius: 50%;
+        border: 1.5px solid var(--gold);
+        background: rgba(13,21,54,.92);
+        color: var(--gold);
+        font-size: 1.35rem;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; padding: 0;
+        transition: transform .3s ease, background .3s ease, box-shadow .3s ease;
+        position: relative; z-index: 230;
+    }
+    .menu-btn:hover { background: rgba(232,189,61,.16); box-shadow: 0 0 20px rgba(232,189,61,.4); }
+    .menu-btn.open { transform: rotate(90deg); }
+
+    /* ============ NAV PANEL ============ */
+    .nav-panel {
+        position: fixed; top: 0; right: 0;
+        height: 100vh; height: 100dvh;
+        width: min(320px, 82vw);
+        background: linear-gradient(160deg, var(--navy-panel-2), var(--navy-deep));
+        border-left: 1px solid rgba(232,189,61,.35);
+        box-shadow: -20px 0 60px rgba(0,0,0,.6);
+        transform: translateX(105%);
+        transition: transform .5s cubic-bezier(.77,0,.18,1);
+        z-index: 210;
+        display: flex; flex-direction: column; justify-content: center;
+        padding: 40px 34px; overflow-y: auto;
+    }
+    .nav-panel.open { transform: translateX(0); }
+    .nav-panel li { margin: 18px 0; opacity: 0; transform: translateX(30px); transition: opacity .4s ease, transform .4s ease; }
+    .nav-panel.open li { opacity: 1; transform: none; }
+    .nav-panel.open li:nth-child(1) { transition-delay: .15s; }
+    .nav-panel.open li:nth-child(2) { transition-delay: .22s; }
+    .nav-panel.open li:nth-child(3) { transition-delay: .29s; }
+    .nav-panel.open li:nth-child(4) { transition-delay: .36s; }
+    .nav-panel.open li:nth-child(5) { transition-delay: .43s; }
+    .nav-panel a {
+        font-family: var(--font-serif);
+        font-size: clamp(1.5rem, 5vw, 1.9rem);
+        font-weight: 700; color: var(--cream);
+        position: relative; padding-bottom: 4px; display: inline-block;
+        transition: color .25s ease, letter-spacing .25s ease;
+    }
+    .nav-panel a::after {
+        content: ""; position: absolute; left: 0; bottom: 0;
+        width: 0; height: 2px; background: var(--gold); transition: width .3s ease;
+    }
+    .nav-panel a:hover { color: var(--gold); letter-spacing: .04em; }
+    .nav-panel a:hover::after { width: 100%; }
+
+    .scrim {
+        position: fixed; inset: 0; background: rgba(3,5,16,.6);
+        -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+        opacity: 0; pointer-events: none; transition: opacity .35s ease; z-index: 205;
+    }
+    .scrim.open { opacity: 1; pointer-events: auto; }
+
+    /* ============ SECTIONS ============ */
+    section {
+        width: 100%;
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: clamp(56px, 9vw, 100px) clamp(14px, 4vw, 24px);
+        position: relative;
+    }
+    .section-heading {
+        text-align: center;
+        font-size: clamp(1.7rem, 5vw, 3rem);
+        margin-bottom: clamp(26px, 5vw, 46px);
+        line-height: 1.2;
+        text-transform: uppercase;
+        background: linear-gradient(100deg, var(--gold-deep), var(--gold-bright) 40%, var(--gold) 60%, var(--gold-deep));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+        filter: drop-shadow(0 4px 18px rgba(232,189,61,.25));
+    }
+    .divider {
+        display: block; width: min(220px, 50%); height: 2px; margin: 0 auto;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+    .section-line { width: 100%; max-width: var(--maxw); margin: 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,189,61,.5), transparent); }
+
+    /* ============ REVEAL ANIMATIONS (only active when JS runs) ============ */
+    .js .reveal {
+        opacity: 0; transform: translateY(50px) rotateX(12deg) scale(.96);
+        transform-origin: 50% 100%;
+        transition: opacity .9s cubic-bezier(.2,.8,.2,1), transform .9s cubic-bezier(.2,.8,.2,1);
+    }
+    .js .reveal.left  { transform: translateX(-70px) rotateY(14deg); transform-origin: 0 50%; }
+    .js .reveal.right { transform: translateX(70px) rotateY(-14deg); transform-origin: 100% 50%; }
+    .js .reveal.in { opacity: 1; transform: none; }
+
+    .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+        padding: 14px 30px; border-radius: 50px;
+        font-family: var(--font-body); font-weight: 600; font-size: 1rem; letter-spacing: .04em;
+        border: 1.5px solid var(--gold); cursor: pointer;
+        transition: transform .3s ease, box-shadow .3s ease, background .3s ease, color .3s ease;
+        position: relative; overflow: hidden;
+    }
+    .btn-gold {
+        background: linear-gradient(135deg, var(--gold-bright), var(--gold) 50%, var(--gold-deep));
+        color: #0a0f26; box-shadow: 0 10px 30px rgba(232,189,61,.35);
+    }
+    .btn-gold:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 40px rgba(232,189,61,.55); }
+    .btn-ghost { background: rgba(13,21,54,.55); color: var(--gold-bright); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+    .btn-ghost:hover { transform: translateY(-4px); background: rgba(232,189,61,.16); box-shadow: 0 12px 32px rgba(232,189,61,.25); }
+
+    /* ============ ABOUT ============ */
+    #about { padding-top: calc(var(--header-h) + clamp(24px, 4vw, 44px)); }
+    .about-container {
+        display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(20px, 4vw, 40px);
+        align-items: stretch; width: 100%; perspective: 1400px;
+    }
+    .about-image { position: relative; min-width: 0; min-height: 320px; }
+    .about-image::before {
+        content: ""; position: absolute; inset: -12px; z-index: 0;
+        border: 3px solid var(--gold-bright); border-radius: 30px;
+        box-shadow: 0 0 22px 4px rgba(232,189,61,.6), 0 0 70px 14px rgba(232,189,61,.3), inset 0 0 22px rgba(232,189,61,.35);
+        animation: goldGlow 3.2s ease-in-out infinite;
+    }
+    @keyframes goldGlow {
+        0%, 100% { box-shadow: 0 0 22px 4px rgba(232,189,61,.55), 0 0 60px 10px rgba(232,189,61,.25), inset 0 0 18px rgba(232,189,61,.3); }
+        50%      { box-shadow: 0 0 34px 8px rgba(248,221,138,.85), 0 0 90px 20px rgba(232,189,61,.4), inset 0 0 28px rgba(232,189,61,.5); }
+    }
+    .about-image img {
+        position: relative; z-index: 1;
+        width: 100%; height: 100%; min-height: 320px; object-fit: cover;
+        border-radius: 22px; border: 4px solid var(--gold);
+        box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    }
+    .glass-card {
+        background: linear-gradient(160deg, var(--navy-panel), var(--navy-panel-2));
+        border: 4px solid var(--gold);
+        border-radius: var(--radius);
+        box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 35px rgba(232,189,61,.3);
+        min-width: 0;
+    }
+    .about-card {
+        padding: clamp(20px, 4vw, 38px);
+        display: flex; flex-direction: column; justify-content: center;
+    }
+    .card-title {
+        font-family: var(--font-display); font-weight: 800;
+        font-size: clamp(1.5rem, 4.4vw, 2.3rem);
+        text-transform: uppercase; color: var(--gold);
+        margin-bottom: 14px;
+    }
+    .about-card p {
+        margin: 0; color: var(--white);
+        font-size: clamp(1.05rem, 2.8vw, 1.28rem); line-height: 1.8;
+        text-align: justify; hyphens: auto;
+    }
+
+    /* ============ FACILITIES ============ */
+    .facility-grid {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 2.4vw, 24px);
+        perspective: 1200px;
+    }
+    .facility-item {
+        padding: clamp(22px, 3.6vw, 34px) 16px;
+        text-align: center;
+        display: flex; flex-direction: column; align-items: center; gap: 12px;
+        transform-style: preserve-3d;
+        transition: transform .25s ease-out, box-shadow .4s ease, border-color .4s ease;
+        will-change: transform;
+    }
+    .facility-item:hover { border-color: var(--gold-bright); box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 45px rgba(232,189,61,.5); }
+    .facility-item .ic {
+        font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1;
+        width: 78px; height: 78px; display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; border: 1.5px solid rgba(232,189,61,.6);
+        background: radial-gradient(circle at 30% 25%, rgba(232,189,61,.25), rgba(232,189,61,.04));
+        transform: translateZ(40px);
+        box-shadow: 0 10px 25px rgba(0,0,0,.4);
+        transition: transform .4s ease;
+    }
+    .facility-item:hover .ic { transform: translateZ(60px) rotateY(360deg); transition: transform .9s ease; }
+    .facility-item b {
+        color: var(--gold-bright); font-weight: 700;
+        font-size: clamp(1rem, 2.4vw, 1.25rem); line-height: 1.3;
+        font-family: var(--font-serif); letter-spacing: .02em;
+        transform: translateZ(30px);
+    }
+
+    /* ============ GALLERY ============ */
+    .gallery-group {
+        display: flex; flex-direction: column; align-items: center; gap: 24px;
+        margin-bottom: clamp(50px, 9vw, 90px); width: 100%;
+    }
+    .gallery-group:last-child { margin-bottom: 0; }
+    .gallery-group h3 {
+        text-align: center; color: var(--white);
+        font-size: clamp(1.4rem, 5vw, 2.5rem); line-height: 1.25;
+        text-shadow: 0 2px 20px rgba(0,0,0,.6);
+        position: relative; padding-bottom: 14px;
+    }
+    .gallery-group h3::after {
+        content: ""; position: absolute; left: 50%; bottom: 0; width: 70px; height: 3px;
+        background: linear-gradient(90deg, transparent, var(--gold), transparent); transform: translateX(-50%);
+    }
+    .slider-container {
+        position: relative; width: 100%; max-width: 880px; height: var(--slider-h);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden; border-radius: 22px; margin: 0 auto;
+        background: radial-gradient(ellipse at center, rgba(232,189,61,.07), transparent 70%);
+    }
+    .carousel { position: relative; width: 100%; height: 100%; perspective: 1200px; }
+    .carousel .slide {
+        position: absolute; top: 50%; left: 50%;
+        width: var(--slide-w); height: var(--slide-h); max-width: none;
+        object-fit: cover; border: 4px solid var(--gold); border-radius: 18px;
+        box-shadow: 0 0 0 5px rgba(232,189,61,.22), 0 0 34px 6px rgba(232,189,61,.6), 0 20px 40px rgba(0,0,0,.5);
+        background: var(--navy-panel); pointer-events: none;
+        transition: transform .7s cubic-bezier(.25,1,.5,1), opacity .6s ease;
+        will-change: transform, opacity;
+    }
+    .carousel .slide.pos-0  { transform: translate(-50%, -50%) scale(1.06) rotateY(0deg);   z-index: 10; opacity: 1; }
+    .carousel .slide.pos-1  { transform: translate(18%, -50%) scale(.9) rotateY(-25deg);   z-index: 5; opacity: .6; }
+    .carousel .slide.pos-2  { transform: translate(72%, -50%) scale(.75) rotateY(-45deg);  z-index: 1; opacity: .22; }
+    .carousel .slide.pos--1 { transform: translate(-118%, -50%) scale(.9) rotateY(25deg);  z-index: 5; opacity: .6; }
+    .carousel .slide.pos--2 { transform: translate(-172%, -50%) scale(.75) rotateY(45deg); z-index: 1; opacity: .22; }
+
+    .nav-arrow {
+        position: absolute; top: 50%; transform: translateY(-50%); z-index: 20;
+        width: 46px; height: 46px; border-radius: 50%;
+        border: 2px solid var(--gold); background: rgba(13,21,54,.92); color: var(--gold);
+        font-size: 1.3rem; cursor: pointer; display: flex; justify-content: center; align-items: center;
+        transition: background .25s ease, transform .25s ease, box-shadow .25s ease; line-height: 1; padding: 0;
+    }
+    .nav-arrow:hover { background: rgba(232,189,61,.25); transform: translateY(-50%) scale(1.1); box-shadow: 0 0 20px rgba(232,189,61,.5); }
+    .nav-arrow.left { left: 10px; }
+    .nav-arrow.right { right: 10px; }
+
+    /* ============ REVIEWS ============ */
+    .rating-summary { text-align: center; margin-bottom: clamp(26px, 5vw, 40px); }
+    .rating-summary .score {
+        font-family: var(--font-display); font-weight: 900;
+        font-size: clamp(3rem, 10vw, 4.6rem); color: var(--gold); line-height: 1;
+        text-shadow: 0 4px 30px rgba(232,189,61,.4);
+    }
+    .rating-summary .stars { color: var(--gold); font-size: clamp(1.2rem, 4vw, 1.7rem); letter-spacing: 4px; margin: 8px 0; }
+    .rating-summary p { color: var(--cream); opacity: .85; font-size: 1rem; margin: 0; }
+
+    .reviews-grid {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));   /* 3 per row on every screen */
+        gap: clamp(8px, 2vw, 22px); width: 100%; perspective: 1200px;
+    }
+    .review-card {
+        padding: clamp(10px, 2.4vw, 24px) clamp(8px, 2vw, 22px);
+        display: flex; flex-direction: column;
+        transform-style: preserve-3d;
+        transition: transform .3s ease-out, box-shadow .4s ease;
+    }
+    .review-card:hover { box-shadow: 0 24px 60px rgba(0,0,0,.6), 0 0 45px rgba(232,189,61,.5); }
+    .review-card .quote { font-family: var(--font-display); color: var(--gold); line-height: .7; font-size: clamp(1.6rem, 4vw, 2.6rem); height: .5em; margin-bottom: 6px; opacity: .8; }
+    .review-card .stars { color: var(--gold); letter-spacing: 1px; font-size: clamp(.6rem, 2vw, .95rem); margin-bottom: 8px; white-space: nowrap; }
+    .review-card p {
+        color: var(--white); opacity: .92; flex: 1;
+        font-size: clamp(.64rem, 1.9vw, .98rem); line-height: 1.55; margin: 0 0 10px;
+        overflow-wrap: anywhere;
+    }
+    .review-card .name { color: var(--gold-bright); font-weight: 600; font-size: clamp(.7rem, 2vw, .95rem); }
+
+    /* ============ CONTACT ============ */
+    .contact-card { padding: clamp(20px, 4vw, 40px); max-width: 960px; margin: 0 auto; }
+    .contact-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px clamp(16px, 4vw, 40px); margin-top: 6px; }
+    .contact-list li {
+        display: flex; gap: 14px; align-items: flex-start;
+        padding: 16px 0; border-bottom: 1px dashed rgba(232,189,61,.28);
+        min-width: 0; overflow-wrap: anywhere;
+        transition: transform .3s ease;
+    }
+    .contact-list li:hover { transform: translateX(6px); }
+    .contact-list .ic {
+        flex: 0 0 auto; width: 46px; height: 46px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        border: 1.5px solid rgba(232,189,61,.55); background: rgba(232,189,61,.08);
+    }
+    .contact-list b {
+        display: block; color: var(--gold-bright); font-weight: 700;
+        font-family: var(--font-serif); font-size: 1.2rem; line-height: 1.2; margin-bottom: 2px;
+    }
+    .contact-list .val { color: var(--white); font-size: 1.02rem; }
+    .contact-list a.val:hover, .map-link:hover { color: var(--gold-bright); }
+    .map-link { color: var(--gold-bright); text-decoration: underline; text-underline-offset: 4px; font-weight: 500; }
+    .contact-btns { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; margin-top: 28px; }
+
+    /* ============ FOOTER ============ */
+    footer {
+        text-align: center;
+        padding: clamp(50px, 10vw, 80px) clamp(16px, 4vw, 24px) calc(clamp(90px, 14vw, 110px) + env(safe-area-inset-bottom, 0px));
+        background: linear-gradient(0deg, #03060f 0%, transparent 100%);
+        border-top: 1px solid rgba(232,189,61,.25);
+    }
+    footer h2 {
+        font-size: clamp(1.8rem, 5vw, 3rem); margin-bottom: 10px; text-transform: uppercase;
+        background: linear-gradient(100deg, var(--gold-deep), var(--gold-bright) 40%, var(--gold) 60%, var(--gold-deep));
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+    }
+    footer .visit { color: var(--cream); font-size: clamp(1rem, 3.2vw, 1.4rem); font-weight: 500; margin: 0 0 22px; }
+    footer .visit b { color: var(--gold-bright); font-weight: 600; }
+    footer .foot-contact { color: var(--cream); opacity: .75; font-size: clamp(.8rem, 2.4vw, .92rem); margin: 28px 0 0; line-height: 1.9; overflow-wrap: anywhere; }
+
+    /* ============ WHATSAPP BUTTON (bottom-right) ============ */
+    .wa-float {
+        position: fixed;
+        right: calc(clamp(14px, 3vw, 28px) + env(safe-area-inset-right, 0px));
+        bottom: calc(clamp(14px, 3vw, 28px) + env(safe-area-inset-bottom, 0px));
+        z-index: 250;
+        display: flex; align-items: center; gap: 10px;
+    }
+    .wa-btn {
+        position: relative; width: 62px; height: 62px; border-radius: 50%;
+        background: linear-gradient(135deg, #3be87f, var(--wa) 55%, #128c4a);
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 12px 30px rgba(37,211,102,.5), 0 0 0 2px rgba(255,255,255,.15) inset;
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .wa-btn:hover { transform: scale(1.12) rotate(-6deg); box-shadow: 0 16px 40px rgba(37,211,102,.7); }
+    .wa-btn::before, .wa-btn::after {
+        content: ""; position: absolute; inset: 0; border-radius: 50%;
+        border: 2px solid var(--wa); animation: ripple 2.4s ease-out infinite;
+    }
+    .wa-btn::after { animation-delay: 1.2s; }
+    @keyframes ripple { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.8); opacity: 0; } }
+    .wa-btn svg { width: 34px; height: 34px; fill: #fff; position: relative; z-index: 1; }
+    .wa-tip {
+        background: #fff; color: #0b1a10; font-weight: 600; font-size: .9rem;
+        padding: 8px 14px; border-radius: 30px; box-shadow: 0 8px 24px rgba(0,0,0,.4);
+        opacity: 0; transform: translateX(14px); animation: tipIn .6s 3s forwards, tipOut .6s 9s forwards;
+        pointer-events: none; white-space: nowrap;
+    }
+    @keyframes tipIn { to { opacity: 1; transform: none; } }
+    @keyframes tipOut { to { opacity: 0; transform: translateX(14px); } }
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+    @media (max-width: 1024px) {
+        .facility-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+        :root { --header-h: 72px; --slide-w: 250px; --slide-h: 300px; --slider-h: 340px; }
+        .about-container { grid-template-columns: 1fr; }
+        .about-image, .about-image img { min-height: 0; height: 280px; }
+        .about-image::before { inset: -8px; border-radius: 28px; }
+        .facility-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .contact-list { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+        :root { --header-h: 66px; --menu-size: 44px; --slide-w: 190px; --slide-h: 240px; --slider-h: 272px; }
+        .facility-item .ic { width: 62px; height: 62px; }
+        .about-card p { text-align: left; }
+        .nav-arrow { width: 38px; height: 38px; font-size: 1.1rem; }
+        .nav-arrow.left { left: 6px; }
+        .nav-arrow.right { right: 6px; }
+        .btn { padding: 13px 24px; font-size: .95rem; }
+        .wa-btn { width: 56px; height: 56px; }
+        .wa-btn svg { width: 30px; height: 30px; }
+        .wa-tip { display: none; }
+        .review-card { border-radius: 12px; border-width: 2px; }
+    }
+
+    @media (max-width: 380px) {
+        :root { --slide-w: 165px; --slide-h: 210px; --slider-h: 240px; }
+        .brand { font-size: 1.25rem; letter-spacing: .03em; }
+        .facility-grid { gap: 10px; }
+        .facility-item { padding: 18px 10px; }
+        .facility-item b { font-size: .95rem; }
+    }
+
+    @media (max-height: 480px) and (orientation: landscape) {
+        :root { --slider-h: 240px; --slide-h: 200px; --slide-w: 170px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html { scroll-behavior: auto; }
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+</style>
+</head>
+<body class="loading">
+    <script>document.documentElement.classList.add('js');</script>
+
+    <div id="loader"><div class="loader-ring"></div><div class="loader-text">NK MAHAL</div></div>
+    <div id="progress"></div>
+
+    <div id="mainContent">
+        <header id="siteHeader">
+            <div class="brand">NK MAHAL</div>
+            <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+        </header>
+
+        <div class="scrim" id="scrim"></div>
+        <nav class="nav-panel" id="navPanel" aria-label="Main menu">
+            <ul>
+                <li><a href="#about" data-link>About</a></li>
+                <li><a href="#contact" data-link>Contact</a></li>
+                <li><a href="#facilities" data-link>Facilities</a></li>
+                <li><a href="#gallery" data-link>Gallery</a></li>
+                <li><a href="#reviews" data-link>Reviews</a></li>
+            </ul>
+        </nav>
+
+        <!-- ABOUT -->
+        <section id="about">
+            <div class="about-container">
+                <div class="about-image reveal left"><img src="entrance2.jpeg" alt="NK Mahal entrance"></div>
+                <div class="glass-card about-card reveal right" data-tilt>
+                    <p>NK Mahal is a perfect destination for celebrating your special occasions with comfort, elegance, and exceptional hospitality. With over 15 years of experience, we take pride in making every event memorable. Our spacious, fully air-conditioned hall provides a comfortable and elegant atmosphere for weddings, receptions, engagements, and family celebrations. Supported by a friendly and dedicated team, we ensure seamless event arrangements, personalized attention, and excellent service throughout your celebration. At NK Mahal, we strive to make every occasion special and turn your precious moments into beautiful lifelong memories.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-line"></div>
+
+        <!-- CONTACT -->
+        <section id="contact">
+            <h2 class="section-heading reveal">Contact Us</h2>
+            <div class="glass-card contact-card reveal" data-tilt>
+                <ul class="contact-list">
+                    <li><span class="ic">📞</span><div><b>Phone</b><a class="val" href="tel:+919876543210">+91 98765 43210</a></div></li>
+                    <li><span class="ic">✉️</span><div><b>Email</b><a class="val" href="mailto:nkmahal@gmail.com">nkmahal@gmail.com</a></div></li>
+                    <li><span class="ic">📍</span><div><b>Address</b><span class="val">No-7, Anna Nagar, Chennai</span></div></li>
+                    <li><span class="ic">🗺️</span><div><b>Location</b><a href="https://www.google.com/maps/search/?api=1&query=NK+Mahal+Chennai" target="_blank" rel="noopener" class="map-link">View on Google Maps</a></div></li>
+                    <li><span class="ic">📸</span><div><b>Instagram</b><a class="val" href="https://www.instagram.com/nkmahal2026" target="_blank" rel="noopener">@nkmahal2026</a></div></li>
+                    <li><span class="ic">🕒</span><div><b>Open Hours</b><span class="val">9:00 AM – 9:00 PM, all days</span></div></li>
+                </ul>
+                <div class="contact-btns">
+                    <a href="tel:+919876543210" class="btn btn-gold">Call Now</a>
+                    <a href="https://wa.me/919876543210" target="_blank" rel="noopener" class="btn btn-gold">Chat on WhatsApp</a>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-line"></div>
+
+        <!-- FACILITIES -->
+        <section id="facilities">
+            <h2 class="section-heading reveal">Facilities</h2>
+            <div class="facility-grid">
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">❄️</span><b>AC Hall</b></div>
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">📹</span><b>24 Hours CCTV</b></div>
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">⚡</span><b>Backup Power Generator</b></div>
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">🪑</span><b>Seating Capacity 1000</b></div>
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">🛕</span><b>Temple within Premise</b></div>
+                <div class="glass-card facility-item reveal" data-tilt><span class="ic">🛗</span><b>Lift</b></div>
+            </div>
+        </section>
+
+        <div class="section-line"></div>
+
+        <!-- GALLERY -->
+        <section id="gallery">
+            <h2 class="section-heading reveal">Gallery</h2>
+            <div id="galleryContainer"></div>
+        </section>
+
+        <div class="section-line"></div>
+
+        <!-- REVIEWS -->
+        <section id="reviews">
+            <h2 class="section-heading reveal">Reviews &amp; Feedback</h2>
+            <div class="rating-summary reveal">
+                <div class="score">4.5</div>
+                <div class="stars">★★★★☆</div>
+                <p>Based on Google Reviews</p>
+            </div>
+            <div class="reviews-grid" id="reviewsGrid"></div>
+        </section>
+
+
+        <footer>
+            <h2>Thank You</h2>
+            <p class="visit">Visit us at <b>NK MAHAL</b> for Bookings and Event details.</p>
+            <p class="foot-contact">No-7, Anna Nagar, Chennai &nbsp;•&nbsp; +91 98765 43210 &nbsp;•&nbsp; nkmahal@gmail.com &nbsp;•&nbsp; @nkmahal2026</p>
+        </footer>
+    </div>
+
+    <!-- WHATSAPP FLOATING BUTTON -->
+    <div class="wa-float">
+        <span class="wa-tip">Chat with us</span>
+        <a class="wa-btn" href="https://wa.me/919876543210?text=Hello%20NK%20Mahal%2C%20I%20would%20like%20to%20know%20about%20booking." target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+            <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16.04 3C9.4 3 4 8.38 4 15.01c0 2.12.55 4.19 1.6 6.01L4 29l8.17-1.57a12.03 12.03 0 0 0 3.87.64C22.67 28.07 28 22.69 28 16.06 28 9.38 22.68 3 16.04 3zm0 22.04c-1.2 0-2.38-.3-3.42-.87l-.5-.28-4.85.93.96-4.7-.3-.5a9.97 9.97 0 0 1-1.52-5.3c0-5.5 4.5-9.97 10.03-9.97 5.53 0 10.02 4.47 10.02 9.97 0 5.5-4.5 10.72-10.42 10.72zm5.5-7.5c-.3-.15-1.78-.88-2.06-.98-.27-.1-.47-.15-.67.15-.2.3-.77.98-.95 1.18-.17.2-.35.22-.65.07-.3-.15-1.27-.47-2.4-1.5-.9-.8-1.5-1.78-1.67-2.08-.17-.3-.02-.46.13-.6.14-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.52-.07-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5s1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.08 4.5.7.3 1.26.48 1.7.62.72.23 1.37.2 1.88.12.57-.08 1.78-.73 2.03-1.43.25-.7.25-1.3.17-1.43-.07-.13-.27-.2-.57-.35z"/></svg>
+        </a>
+    </div>
+
+    <!-- BACKGROUND MUSIC (no visible controls) -->
+    <audio id="bgMusic" loop preload="auto" playsinline>
+        <source src="invimusic.mp3" type="audio/mpeg">
+        <source src="invimusic.m4a" type="audio/mp4">
+        <source src="invimusic.ogg" type="audio/ogg">
+        <source src="invimusic.wav" type="audio/wav">
+    </audio>
+
+<script>
+(function () {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    /* ---------------- PRELOADER ---------------- */
+    function hideLoader() {
+        const l = document.getElementById('loader');
+        l.classList.add('done');
+        document.body.classList.remove('loading');
+    }
+    window.addEventListener('load', () => setTimeout(hideLoader, 600));
+    setTimeout(hideLoader, 3500); // safety net if an image is slow
+
+    /* ---------------- NAV MENU ---------------- */
+    const menuBtn = document.getElementById('menuBtn');
+    const navPanel = document.getElementById('navPanel');
+    const scrim = document.getElementById('scrim');
+
+    function setMenu(open) {
+        menuBtn.classList.toggle('open', open);
+        navPanel.classList.toggle('open', open);
+        scrim.classList.toggle('open', open);
+        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        menuBtn.textContent = open ? '✕' : '☰';
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+    menuBtn.addEventListener('click', () => setMenu(!navPanel.classList.contains('open')));
+    scrim.addEventListener('click', () => setMenu(false));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') setMenu(false); });
+
+    document.querySelectorAll('[data-link]').forEach(link => {
+        link.addEventListener('click', e => {
+            e.preventDefault();
+            const wasOpen = navPanel.classList.contains('open');
+            setMenu(false);
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) setTimeout(() => target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' }), wasOpen ? 200 : 0);
+        });
+    });
+
+    /* ---------------- HEADER + PROGRESS ---------------- */
+    const header = document.getElementById('siteHeader');
+    const progress = document.getElementById('progress');
+    function onScroll() {
+        const y = window.scrollY;
+        header.classList.toggle('scrolled', y > 8);
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        progress.style.width = (max > 0 ? (y / max) * 100 : 0) + '%';
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    /* ---------------- 3D TILT CARDS ---------------- */
+    if (finePointer && !reduceMotion) {
+        document.querySelectorAll('[data-tilt]').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const r = card.getBoundingClientRect();
+                const x = (e.clientX - r.left) / r.width - 0.5;
+                const y = (e.clientY - r.top) / r.height - 0.5;
+                card.style.transform = 'perspective(900px) rotateY(' + (x * 12) + 'deg) rotateX(' + (-y * 12) + 'deg) translateZ(8px)';
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        });
+    }
+
+    /* ---------------- SCROLL REVEAL ---------------- */
+    function setupReveal() {
+        const items = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) { items.forEach(i => i.classList.add('in')); return; }
+        const io = new IntersectionObserver(entries => {
+            entries.forEach(en => {
+                if (en.isIntersecting) {
+                    const siblings = Array.from(en.target.parentElement.children);
+                    const idx = Math.max(0, siblings.indexOf(en.target));
+                    en.target.style.transitionDelay = Math.min(idx, 5) * 0.09 + 's';
+                    en.target.classList.add('in');
+                    const t = en.target;
+                    setTimeout(() => { t.style.transitionDelay = ''; }, 1500);
+                    io.unobserve(en.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        items.forEach(i => io.observe(i));
+    }
+
+    /* ---------------- GALLERY SLIDERS ---------------- */
+    const galleries = [
+        { title: "Entrance",      prefix: "entrance", count: 5 },
+        { title: "Marriage Hall", prefix: "hall",     count: 5 },
+        { title: "Dining Hall",   prefix: "dining",   count: 5 },
+        { title: "Parking",       prefix: "parking",  count: 5 }
+    ];
+    const galleryContainer = document.getElementById('galleryContainer');
+    const slidersData = [];
+
+    galleries.forEach(g => {
+        const group = document.createElement('div');
+        group.className = 'gallery-group reveal';
+
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'slider-container';
+
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'nav-arrow left';
+        prevBtn.setAttribute('aria-label', 'Previous image');
+        prevBtn.innerHTML = '&lt;';
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'nav-arrow right';
+        nextBtn.setAttribute('aria-label', 'Next image');
+        nextBtn.innerHTML = '&gt;';
+
+        const carousel = document.createElement('div');
+        carousel.className = 'carousel';
+
+        const slides = [];
+        for (let i = 1; i <= g.count; i++) {
+            const img = document.createElement('img');
+            img.className = 'slide';
+            img.src = g.prefix + i + '.jpeg';
+            img.alt = g.title + ' ' + i;
+            img.loading = 'lazy';
+            carousel.appendChild(img);
+            slides.push(img);
+        }
+
+        sliderContainer.appendChild(prevBtn);
+        sliderContainer.appendChild(carousel);
+        sliderContainer.appendChild(nextBtn);
+
+        const heading = document.createElement('h3');
+        heading.textContent = g.title;
+
+        group.appendChild(sliderContainer);
+        group.appendChild(heading);
+        galleryContainer.appendChild(group);
+
+        let current = 0;
+        const total = slides.length;
+        let timer = null;
+
+        function update() {
+            slides.forEach((slide, index) => {
+                slide.className = 'slide';
+                let offset = index - current;
+                if (offset < -total / 2) offset += total;
+                if (offset > total / 2) offset -= total;
+                if (offset >= -2 && offset <= 2) {
+                    slide.style.opacity = '';
+                    slide.style.zIndex = '';
+                    slide.classList.add('pos-' + offset);
+                } else {
+                    slide.style.opacity = 0;
+                    slide.style.zIndex = 0;
+                }
+            });
+        }
+        function startAuto() {
+            if (reduceMotion) return;
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => { current = (current + 1) % total; update(); }, 3200);
+        }
+        function stopAuto() {
+            if (timer) clearInterval(timer);
+            timer = null;
+        }
+
+        update();
+        prevBtn.addEventListener('click', () => { current = (current - 1 + total) % total; update(); startAuto(); });
+        nextBtn.addEventListener('click', () => { current = (current + 1) % total; update(); startAuto(); });
+
+        // swipe support on touch screens
+        let sx = null;
+        sliderContainer.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+        sliderContainer.addEventListener('touchend', e => {
+            if (sx === null) return;
+            const dx = e.changedTouches[0].clientX - sx;
+            if (Math.abs(dx) > 40) {
+                current = (current + (dx < 0 ? 1 : -1) + total) % total;
+                update(); startAuto();
+            }
+            sx = null;
+        }, { passive: true });
+
+        slidersData.push({ element: sliderContainer, startAuto, stopAuto });
+    });
+
+    if ('IntersectionObserver' in window) {
+        const sliderObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const s = slidersData.find(x => x.element === entry.target);
+                if (!s) return;
+                if (entry.isIntersecting) s.startAuto(); else s.stopAuto();
+            });
+        }, { threshold: 0.25 });
+        slidersData.forEach(s => sliderObserver.observe(s.element));
+    }
+
+    /* ---------------- REVIEWS ---------------- */
+    const reviews = [
+        { name: "Priya",   rating: 5, text: "We chose NK Mahal for our wedding and it was the best decision. The hall looked beautiful and every guest told us how well everything was arranged." },
+        { name: "Suresh",  rating: 4, text: "NK Mahal made our reception stress-free. There was plenty of parking, the staff were always around to help, and the evening went exactly as planned." },
+        { name: "Meena",   rating: 5, text: "Booked NK Mahal for my daughter's engagement. The team listened patiently to every small request and the AC hall kept all our relatives comfortable." },
+        { name: "Arun",    rating: 5, text: "Having a temple inside NK Mahal was such a blessing for our family rituals. The elders loved that everything was available in a single place." },
+        { name: "Lakshmi", rating: 4, text: "NK Mahal is clean, spacious and well maintained. We got a premium feel without overspending, and the manager was very friendly while we planned." },
+        { name: "Vignesh", rating: 5, text: "The entrance decor at NK Mahal set the mood right away. Our photos came out lovely and the lift made it so easy for my grandparents." },
+        { name: "Kavitha", rating: 4, text: "We celebrated my parents' anniversary at NK Mahal. The staff handled everything politely and on time, and our family still talks about that evening." },
+        { name: "Ramesh",  rating: 5, text: "From the first visit to the wedding day, the NK Mahal team stayed supportive. They fixed last-minute issues calmly and we felt completely relaxed." },
+        { name: "Deepa",   rating: 4, text: "NK Mahal was easy for our out-of-town relatives to find in Anna Nagar. The generator backup gave us real peace of mind throughout the function." },
+        { name: "Karthik", rating: 5, text: "Excellent hall and a grand stage at NK Mahal. The lighting, sound and seating were perfect, and the whole function felt royal and well organised." },
+        { name: "Malini",  rating: 5, text: "We had our engagement at NK Mahal and it was simply perfect. The staff helped us set up on time and our guests loved the pleasant atmosphere." },
+        { name: "Senthil", rating: 4, text: "We felt very safe at NK Mahal with the CCTV and security around. It is a neat, well kept place and I would happily book it again for family events." }
+    ];
+
+    const reviewsGrid = document.getElementById('reviewsGrid');
+    reviews.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'glass-card review-card reveal';
+        if (finePointer) card.setAttribute('data-tilt', '');
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        card.innerHTML =
+            '<div class="quote">“</div>' +
+            '<div class="stars">' + stars + '</div>' +
+            '<p>' + r.text + '</p>' +
+            '<div class="name">' + r.name + '</div>';
+        reviewsGrid.appendChild(card);
+        if (finePointer && !reduceMotion) {
+            card.addEventListener('mousemove', e => {
+                const b = card.getBoundingClientRect();
+                const x = (e.clientX - b.left) / b.width - 0.5;
+                const y = (e.clientY - b.top) / b.height - 0.5;
+                card.style.transform = 'perspective(900px) rotateY(' + (x * 10) + 'deg) rotateX(' + (-y * 10) + 'deg) translateZ(6px)';
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        }
+    });
+
+    /* ---------------- BACKGROUND MUSIC ---------------- */
+    const music = document.getElementById('bgMusic');
+    music.volume = 0.6;
+    let musicStarted = false;
+    const unlockEvents = ['pointerdown', 'touchstart', 'click', 'keydown'];
+    function removeUnlock() { unlockEvents.forEach(ev => window.removeEventListener(ev, tryStart, true)); }
+    function tryStart() {
+        if (musicStarted) return;
+        const p = music.play();
+        if (p && p.then) {
+            p.then(() => { musicStarted = true; removeUnlock(); }).catch(() => { /* browser blocked it; wait for the next tap or click */ });
+        } else { musicStarted = true; removeUnlock(); }
+    }
+    tryStart();                                   // works where autoplay is allowed
+    unlockEvents.forEach(ev => window.addEventListener(ev, tryStart, true)); // otherwise starts on the first tap/click/key
+    document.addEventListener('visibilitychange', () => {
+        if (!musicStarted) return;
+        if (document.hidden) music.pause(); else music.play().catch(() => {});
+    });
+
+    /* ---------------- START REVEALS (after all dynamic content exists) ---------------- */
+    setupReveal();
+})();
+</script>
+</body>
+</html>
